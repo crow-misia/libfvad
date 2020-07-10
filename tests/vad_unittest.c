@@ -12,8 +12,6 @@
 #include "vad_unittest.h"
 #include "../include/fvad.h"
 
-
-// Returns true if the rate and frame length combination is valid.
 bool ValidRatesAndFrameLengths(int rate, size_t frame_length) {
 
   if (rate == 8000) {

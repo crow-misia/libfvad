@@ -23,9 +23,9 @@ static const size_t kRatesSize = sizeof(kRates) / sizeof(*kRates);
 
 // Frame lengths we support.
 #define kMaxFrameLength 1440
-static const size_t kFrameLengths[] = { 80, 120, 160, 240, 320, 480, 640, 960,
+static const size_t kFrameLengths[] = {
+    80, 120, 160, 240, 320, 480, 640, 960, kMaxFrameLength};
 
-    kMaxFrameLength };
 static const size_t kFrameLengthsSize = sizeof(kFrameLengths) / sizeof(*kFrameLengths);
 
 

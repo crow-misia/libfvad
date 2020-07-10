@@ -9,6 +9,7 @@
  */
 
 #include "vad_filterbank.h"
+#include "../signal_processing/signal_processing_library.h"
 
 // Constants used in LogOfEnergy().
 static const int16_t kLogConst = 24660;  // 160*log10(2) in Q9.

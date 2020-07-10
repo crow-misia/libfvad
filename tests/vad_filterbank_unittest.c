@@ -19,12 +19,10 @@ void test_main() {
   VadInstT* self = malloc(sizeof(VadInstT));
   static const int16_t kReference[kNumValidFrameLengths] = { 48, 11, 11 };
   static const int16_t kFeatures[kNumValidFrameLengths * kNumChannels] = {
-      1213, 759, 587, 462, 434, 272,
-      1479, 1385, 1291, 1200, 1103, 1099,
-      1732, 1692, 1681, 1629, 1436, 1436
-  };
-  static const int16_t kOffsetVector[kNumChannels] = {
-      368, 368, 272, 176, 176, 176 };
+      1213, 759,  587,  462,  434,  272,  1479, 1385, 1291,
+      1200, 1103, 1099, 1732, 1692, 1681, 1629, 1436, 1436};
+  static const int16_t kOffsetVector[kNumChannels] = {368, 368, 272,
+                                                      176, 176, 176};
   int16_t features[kNumChannels];
 
   // Construct a speech signal that will trigger the VAD in all modes. It is

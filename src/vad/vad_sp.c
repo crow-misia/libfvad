@@ -9,6 +9,8 @@
  */
 
 #include "vad_sp.h"
+#include "../signal_processing/signal_processing_library.h"
+#include "vad_core.h"
 
 // Allpass filter coefficients, upper and lower, in Q13.
 // Upper: 0.64, Lower: 0.17.
@@ -75,7 +77,7 @@ int16_t WebRtcVad_FindMinimum(VadInstT* self,
       age[i]++;
     } else {
       // Too old value. Remove from memory and shift larger values downwards.
-      for (j = i; j < 16; j++) {
+      for (j = i; j < 15; j++) {
         smallest_values[j] = smallest_values[j + 1];
         age[j] = age[j + 1];
       }

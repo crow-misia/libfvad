@@ -24,11 +24,9 @@ void test_main() {
   // We expect the first value to be 1600 as long as |frame_counter| is zero,
   // which is true for the first iteration.
   static const int16_t kReferenceMin[32] = {
-      1600, 720, 509, 512, 532, 552, 570, 588,
-       606, 624, 642, 659, 675, 691, 707, 723,
-      1600, 544, 502, 522, 542, 561, 579, 597,
-       615, 633, 651, 667, 683, 699, 715, 731
-  };
+      1600, 720, 509, 512, 532, 552,  570, 588, 606, 624, 642,
+      659,  675, 691, 707, 723, 1600, 544, 502, 522, 542, 561,
+      579,  597, 615, 633, 651, 667,  683, 699, 715, 731};
 
   // Construct a speech signal that will trigger the VAD in all modes. It is
   // known that (i * i) will wrap around, but that doesn't matter in this case.

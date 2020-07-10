@@ -8,7 +8,6 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
 // This header file includes the inline functions in
 // the fix point signal processing library.
 

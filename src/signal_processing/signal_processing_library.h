@@ -8,11 +8,10 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
 /*
- * This header file includes all of the fix point signal processing library (SPL) function
- * descriptions and declarations.
- * For specific function calls, see bottom of file.
+ * This header file includes all of the fix point signal processing library
+ * (SPL) function descriptions and declarations. For specific function calls,
+ * see bottom of file.
  */
 
 #ifndef COMMON_AUDIO_SIGNAL_PROCESSING_INCLUDE_SIGNAL_PROCESSING_LIBRARY_H_
@@ -79,7 +78,8 @@ typedef struct {
   int32_t S_16_8[8];
 } WebRtcSpl_State48khzTo8khz;
 
-void WebRtcSpl_Resample48khzTo8khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample48khzTo8khz(const int16_t* in,
+                                   int16_t* out,
                                    WebRtcSpl_State48khzTo8khz* state,
                                    int32_t* tmpmem);
 
@@ -91,3 +91,33 @@ void WebRtcSpl_ResetResample48khzTo8khz(WebRtcSpl_State48khzTo8khz* state);
 
 
 #endif  // COMMON_AUDIO_SIGNAL_PROCESSING_INCLUDE_SIGNAL_PROCESSING_LIBRARY_H_
+//
+// WebRtcSpl_DivW32W16(...)
+//
+// Divides a int32_t |num| by a int16_t |den|.
+//
+// If |den|==0, (int32_t)0x7FFFFFFF is returned.
+//
+// Input:
+//      - num       : Numerator
+//      - den       : Denominator
+//
+// Return value     : Result of the division (as a int32_t), i.e., the
+//                    integer part of num/den.
+//
+
+//
+// WebRtcSpl_Energy(...)
+//
+// Calculates the energy of a vector
+//
+// Input:
+//      - vector        : Vector which the energy should be calculated on
+//      - vector_length : Number of samples in vector
+//
+// Output:
+//      - scale_factor  : Number of left bit shifts needed to get the physical
+//                        energy value, i.e, to get the Q0 value
+//
+// Return value         : Energy value in Q(-|scale_factor|)
+//
