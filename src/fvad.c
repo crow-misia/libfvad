@@ -15,7 +15,6 @@
 
 #include "common_audio/signal_processing/include/signal_processing_library.h"
 #include "common_audio/vad/vad_core.h"
-#include "typedefs.h"  // NOLINT(build/include)
 
 static const int kInitCheck = 42;
 static const int kValidRates[] = { 8000, 16000, 32000, 48000 };
@@ -25,7 +24,6 @@ static const int kMaxFrameLengthMs = 30;
 VadInst* WebRtcVad_Create() {
   VadInstT* self = (VadInstT*)malloc(sizeof(VadInstT));
 
-  WebRtcSpl_Init();
   self->init_flag = 0;
 
   return (VadInst*)self;

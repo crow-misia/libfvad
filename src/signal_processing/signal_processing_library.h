@@ -8,78 +8,72 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
 /*
- * This header file includes all of the fix point signal processing library (SPL) function
- * descriptions and declarations.
- * For specific function calls, see bottom of file.
+ * This header file includes all of the fix point signal processing library
+ * (SPL) function descriptions and declarations. For specific function calls,
+ * see bottom of file.
  */
 
 #ifndef COMMON_AUDIO_SIGNAL_PROCESSING_INCLUDE_SIGNAL_PROCESSING_LIBRARY_H_
 #define COMMON_AUDIO_SIGNAL_PROCESSING_INCLUDE_SIGNAL_PROCESSING_LIBRARY_H_
 
 #include <string.h>
+
 #include "common_audio/signal_processing/dot_product_with_scale.h"
-#include "typedefs.h"  // NOLINT(build/include)
 
 // Macros specific for the fixed point implementation
-#define WEBRTC_SPL_WORD16_MAX       32767
-#define WEBRTC_SPL_WORD16_MIN       -32768
-#define WEBRTC_SPL_WORD32_MAX       (int32_t)0x7fffffff
-#define WEBRTC_SPL_WORD32_MIN       (int32_t)0x80000000
-#define WEBRTC_SPL_MAX_LPC_ORDER    14
-#define WEBRTC_SPL_MIN(A, B)        (A < B ? A : B)  // Get min value
-#define WEBRTC_SPL_MAX(A, B)        (A > B ? A : B)  // Get max value
+#define WEBRTC_SPL_WORD16_MAX 32767
+#define WEBRTC_SPL_WORD16_MIN -32768
+#define WEBRTC_SPL_WORD32_MAX (int32_t)0x7fffffff
+#define WEBRTC_SPL_WORD32_MIN (int32_t)0x80000000
+#define WEBRTC_SPL_MAX_LPC_ORDER 14
+#define WEBRTC_SPL_MIN(A, B) (A < B ? A : B)  // Get min value
+#define WEBRTC_SPL_MAX(A, B) (A > B ? A : B)  // Get max value
 // TODO(kma/bjorn): For the next two macros, investigate how to correct the code
 // for inputs of a = WEBRTC_SPL_WORD16_MIN or WEBRTC_SPL_WORD32_MIN.
-#define WEBRTC_SPL_ABS_W16(a) \
-    (((int16_t)a >= 0) ? ((int16_t)a) : -((int16_t)a))
-#define WEBRTC_SPL_ABS_W32(a) \
-    (((int32_t)a >= 0) ? ((int32_t)a) : -((int32_t)a))
+#define WEBRTC_SPL_ABS_W16(a) (((int16_t)a >= 0) ? ((int16_t)a) : -((int16_t)a))
+#define WEBRTC_SPL_ABS_W32(a) (((int32_t)a >= 0) ? ((int32_t)a) : -((int32_t)a))
 
-#define WEBRTC_SPL_MUL(a, b) \
-    ((int32_t) ((int32_t)(a) * (int32_t)(b)))
-#define WEBRTC_SPL_UMUL(a, b) \
-    ((uint32_t) ((uint32_t)(a) * (uint32_t)(b)))
-#define WEBRTC_SPL_UMUL_32_16(a, b) \
-    ((uint32_t) ((uint32_t)(a) * (uint16_t)(b)))
-#define WEBRTC_SPL_MUL_16_U16(a, b) \
-    ((int32_t)(int16_t)(a) * (uint16_t)(b))
+#define WEBRTC_SPL_MUL(a, b) ((int32_t)((int32_t)(a) * (int32_t)(b)))
+#define WEBRTC_SPL_UMUL(a, b) ((uint32_t)((uint32_t)(a) * (uint32_t)(b)))
+#define WEBRTC_SPL_UMUL_32_16(a, b) ((uint32_t)((uint32_t)(a) * (uint16_t)(b)))
+#define WEBRTC_SPL_MUL_16_U16(a, b) ((int32_t)(int16_t)(a) * (uint16_t)(b))
 
+// clang-format off
+// clang-format would choose some identation
+// leading to presubmit error (cpplint.py)
 #ifndef WEBRTC_ARCH_ARM_V7
 // For ARMv7 platforms, these are inline functions in spl_inl_armv7.h
 #ifndef MIPS32_LE
 // For MIPS platforms, these are inline functions in spl_inl_mips.h
-#define WEBRTC_SPL_MUL_16_16(a, b) \
-    ((int32_t) (((int16_t)(a)) * ((int16_t)(b))))
+#define WEBRTC_SPL_MUL_16_16(a, b) ((int32_t)(((int16_t)(a)) * ((int16_t)(b))))
 #define WEBRTC_SPL_MUL_16_32_RSFT16(a, b) \
-    (WEBRTC_SPL_MUL_16_16(a, b >> 16) \
-     + ((WEBRTC_SPL_MUL_16_16(a, (b & 0xffff) >> 1) + 0x4000) >> 15))
+        (WEBRTC_SPL_MUL_16_16(a, b >> 16) +     \
+        ((WEBRTC_SPL_MUL_16_16(a, (b & 0xffff) >> 1) + 0x4000) >> 15))
 #endif
 #endif
 
 #define WEBRTC_SPL_MUL_16_32_RSFT11(a, b)          \
-  (WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 5) + \
-    (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x0200) >> 10))
+        (WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 5) + \
+        (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x0200) >> 10))
 #define WEBRTC_SPL_MUL_16_32_RSFT14(a, b)          \
-  (WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 2) + \
-    (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x1000) >> 13))
+        (WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 2) + \
+        (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x1000) >> 13))
 #define WEBRTC_SPL_MUL_16_32_RSFT15(a, b)            \
-  ((WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 1)) + \
-    (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x2000) >> 14))
+        ((WEBRTC_SPL_MUL_16_16(a, (b) >> 16) * (1 << 1)) + \
+        (((WEBRTC_SPL_MUL_16_U16(a, (uint16_t)(b)) >> 1) + 0x2000) >> 14))
+// clang-format on
 
-#define WEBRTC_SPL_MUL_16_16_RSFT(a, b, c) \
-    (WEBRTC_SPL_MUL_16_16(a, b) >> (c))
+#define WEBRTC_SPL_MUL_16_16_RSFT(a, b, c) (WEBRTC_SPL_MUL_16_16(a, b) >> (c))
 
 #define WEBRTC_SPL_MUL_16_16_RSFT_WITH_ROUND(a, b, c) \
-    ((WEBRTC_SPL_MUL_16_16(a, b) + ((int32_t) \
-                                  (((int32_t)1) << ((c) - 1)))) >> (c))
+  ((WEBRTC_SPL_MUL_16_16(a, b) + ((int32_t)(((int32_t)1) << ((c)-1)))) >> (c))
 
 // C + the 32 most significant bits of A * B
 #define WEBRTC_SPL_SCALEDIFF32(A, B, C) \
-    (C + (B >> 16) * A + (((uint32_t)(B & 0x0000FFFF) * A) >> 16))
+  (C + (B >> 16) * A + (((uint32_t)(B & 0x0000FFFF) * A) >> 16))
 
-#define WEBRTC_SPL_SAT(a, b, c)         (b > a ? a : b < c ? c : b)
+#define WEBRTC_SPL_SAT(a, b, c) (b > a ? a : b < c ? c : b)
 
 // Shifting with negative numbers allowed
 // Positive means left shift
@@ -87,12 +81,11 @@
 
 // Shifting with negative numbers not allowed
 // We cannot do casting here due to signed/unsigned problem
-#define WEBRTC_SPL_LSHIFT_W32(x, c)     ((x) << (c))
+#define WEBRTC_SPL_LSHIFT_W32(x, c) ((x) << (c))
 
-#define WEBRTC_SPL_RSHIFT_U32(x, c)     ((uint32_t)(x) >> (c))
+#define WEBRTC_SPL_RSHIFT_U32(x, c) ((uint32_t)(x) >> (c))
 
-#define WEBRTC_SPL_RAND(a) \
-    ((int16_t)((((int16_t)a * 18816) >> 7) & 0x00007fff))
+#define WEBRTC_SPL_RAND(a) ((int16_t)((((int16_t)a * 18816) >> 7) & 0x00007fff))
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,13 +97,8 @@ extern "C" {
 // inline functions:
 #include "common_audio/signal_processing/include/spl_inl.h"
 
-// Initialize SPL. Currently it contains only function pointer initialization.
-// If the underlying platform is known to be ARM-Neon (WEBRTC_HAS_NEON defined),
-// the pointers will be assigned to code optimized for Neon; otherwise, generic
-// C code will be assigned.
-// Note that this function MUST be called in any application that uses SPL
-// functions.
-void WebRtcSpl_Init(void);
+// third party math functions
+#include "common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor.h"
 
 int16_t WebRtcSpl_GetScalingSquare(int16_t* in_vector,
                                    size_t in_vector_length,
@@ -131,12 +119,9 @@ void WebRtcSpl_CopyFromEndW16(const int16_t* in_vector,
                               size_t in_vector_length,
                               size_t samples,
                               int16_t* out_vector);
-void WebRtcSpl_ZerosArrayW16(int16_t* vector,
-                             size_t vector_length);
-void WebRtcSpl_ZerosArrayW32(int32_t* vector,
-                             size_t vector_length);
+void WebRtcSpl_ZerosArrayW16(int16_t* vector, size_t vector_length);
+void WebRtcSpl_ZerosArrayW32(int32_t* vector, size_t vector_length);
 // End: Copy and set operations.
-
 
 // Minimum and maximum operation functions and their pointers.
 // Implementation in min_max_operations.c.
@@ -149,7 +134,7 @@ void WebRtcSpl_ZerosArrayW32(int32_t* vector,
 //
 // Return value  : Maximum absolute value in vector.
 typedef int16_t (*MaxAbsValueW16)(const int16_t* vector, size_t length);
-extern MaxAbsValueW16 WebRtcSpl_MaxAbsValueW16;
+extern const MaxAbsValueW16 WebRtcSpl_MaxAbsValueW16;
 int16_t WebRtcSpl_MaxAbsValueW16C(const int16_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int16_t WebRtcSpl_MaxAbsValueW16Neon(const int16_t* vector, size_t length);
@@ -166,7 +151,7 @@ int16_t WebRtcSpl_MaxAbsValueW16_mips(const int16_t* vector, size_t length);
 //
 // Return value  : Maximum absolute value in vector.
 typedef int32_t (*MaxAbsValueW32)(const int32_t* vector, size_t length);
-extern MaxAbsValueW32 WebRtcSpl_MaxAbsValueW32;
+extern const MaxAbsValueW32 WebRtcSpl_MaxAbsValueW32;
 int32_t WebRtcSpl_MaxAbsValueW32C(const int32_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int32_t WebRtcSpl_MaxAbsValueW32Neon(const int32_t* vector, size_t length);
@@ -183,7 +168,7 @@ int32_t WebRtcSpl_MaxAbsValueW32_mips(const int32_t* vector, size_t length);
 //
 // Return value  : Maximum sample value in |vector|.
 typedef int16_t (*MaxValueW16)(const int16_t* vector, size_t length);
-extern MaxValueW16 WebRtcSpl_MaxValueW16;
+extern const MaxValueW16 WebRtcSpl_MaxValueW16;
 int16_t WebRtcSpl_MaxValueW16C(const int16_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int16_t WebRtcSpl_MaxValueW16Neon(const int16_t* vector, size_t length);
@@ -200,7 +185,7 @@ int16_t WebRtcSpl_MaxValueW16_mips(const int16_t* vector, size_t length);
 //
 // Return value  : Maximum sample value in |vector|.
 typedef int32_t (*MaxValueW32)(const int32_t* vector, size_t length);
-extern MaxValueW32 WebRtcSpl_MaxValueW32;
+extern const MaxValueW32 WebRtcSpl_MaxValueW32;
 int32_t WebRtcSpl_MaxValueW32C(const int32_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int32_t WebRtcSpl_MaxValueW32Neon(const int32_t* vector, size_t length);
@@ -217,7 +202,7 @@ int32_t WebRtcSpl_MaxValueW32_mips(const int32_t* vector, size_t length);
 //
 // Return value  : Minimum sample value in |vector|.
 typedef int16_t (*MinValueW16)(const int16_t* vector, size_t length);
-extern MinValueW16 WebRtcSpl_MinValueW16;
+extern const MinValueW16 WebRtcSpl_MinValueW16;
 int16_t WebRtcSpl_MinValueW16C(const int16_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int16_t WebRtcSpl_MinValueW16Neon(const int16_t* vector, size_t length);
@@ -234,7 +219,7 @@ int16_t WebRtcSpl_MinValueW16_mips(const int16_t* vector, size_t length);
 //
 // Return value  : Minimum sample value in |vector|.
 typedef int32_t (*MinValueW32)(const int32_t* vector, size_t length);
-extern MinValueW32 WebRtcSpl_MinValueW32;
+extern const MinValueW32 WebRtcSpl_MinValueW32;
 int32_t WebRtcSpl_MinValueW32C(const int32_t* vector, size_t length);
 #if defined(WEBRTC_HAS_NEON)
 int32_t WebRtcSpl_MinValueW32Neon(const int32_t* vector, size_t length);
@@ -297,7 +282,6 @@ size_t WebRtcSpl_MinIndexW32(const int32_t* vector, size_t length);
 
 // End: Minimum and maximum operations.
 
-
 // Vector scaling operations. Implementation in vector_scaling_operations.c.
 // Description at bottom of file.
 void WebRtcSpl_VectorBitShiftW16(int16_t* out_vector,
@@ -323,9 +307,11 @@ void WebRtcSpl_ScaleVectorWithSat(const int16_t* in_vector,
                                   size_t vector_length,
                                   int16_t right_shifts);
 void WebRtcSpl_ScaleAndAddVectors(const int16_t* in_vector1,
-                                  int16_t gain1, int right_shifts1,
+                                  int16_t gain1,
+                                  int right_shifts1,
                                   const int16_t* in_vector2,
-                                  int16_t gain2, int right_shifts2,
+                                  int16_t gain2,
+                                  int right_shifts2,
                                   int16_t* out_vector,
                                   size_t vector_length);
 
@@ -354,7 +340,7 @@ typedef int (*ScaleAndAddVectorsWithRound)(const int16_t* in_vector1,
                                            int right_shifts,
                                            int16_t* out_vector,
                                            size_t length);
-extern ScaleAndAddVectorsWithRound WebRtcSpl_ScaleAndAddVectorsWithRound;
+extern const ScaleAndAddVectorsWithRound WebRtcSpl_ScaleAndAddVectorsWithRound;
 int WebRtcSpl_ScaleAndAddVectorsWithRoundC(const int16_t* in_vector1,
                                            int16_t in_vector1_scale,
                                            const int16_t* in_vector2,
@@ -391,13 +377,13 @@ void WebRtcSpl_AddVectorsAndShift(int16_t* out_vector,
                                   size_t vector_length,
                                   int16_t right_shifts);
 void WebRtcSpl_AddAffineVectorToVector(int16_t* out_vector,
-                                       int16_t* in_vector,
+                                       const int16_t* in_vector,
                                        int16_t gain,
                                        int32_t add_constant,
                                        int16_t right_shifts,
                                        size_t vector_length);
 void WebRtcSpl_AffineTransformVector(int16_t* out_vector,
-                                     int16_t* in_vector,
+                                     const int16_t* in_vector,
                                      int16_t gain,
                                      int32_t add_constant,
                                      int16_t right_shifts,
@@ -521,7 +507,7 @@ typedef void (*CrossCorrelation)(int32_t* cross_correlation,
                                  size_t dim_cross_correlation,
                                  int right_shifts,
                                  int step_seq2);
-extern CrossCorrelation WebRtcSpl_CrossCorrelation;
+extern const CrossCorrelation WebRtcSpl_CrossCorrelation;
 void WebRtcSpl_CrossCorrelationC(int32_t* cross_correlation,
                                  const int16_t* seq1,
                                  const int16_t* seq2,
@@ -583,7 +569,6 @@ int16_t WebRtcSpl_RandUArray(int16_t* vector,
 
 // Math functions
 int32_t WebRtcSpl_Sqrt(int32_t value);
-int32_t WebRtcSpl_SqrtFloor(int32_t value);
 
 // Divisions. Implementations collected in division_operations.c and
 // descriptions at bottom of this file.
@@ -671,7 +656,7 @@ typedef int (*DownsampleFast)(const int16_t* data_in,
                               size_t coefficients_length,
                               int factor,
                               size_t delay);
-extern DownsampleFast WebRtcSpl_DownsampleFast;
+extern const DownsampleFast WebRtcSpl_DownsampleFast;
 int WebRtcSpl_DownsampleFastC(const int16_t* data_in,
                               size_t data_in_length,
                               int16_t* data_out,
@@ -777,7 +762,8 @@ typedef struct {
   int32_t S_16_8[8];
 } WebRtcSpl_State22khzTo8khz;
 
-void WebRtcSpl_Resample22khzTo8khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample22khzTo8khz(const int16_t* in,
+                                   int16_t* out,
                                    WebRtcSpl_State22khzTo8khz* state,
                                    int32_t* tmpmem);
 
@@ -790,7 +776,8 @@ typedef struct {
   int32_t S_11_22[8];
 } WebRtcSpl_State8khzTo22khz;
 
-void WebRtcSpl_Resample8khzTo22khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample8khzTo22khz(const int16_t* in,
+                                   int16_t* out,
                                    WebRtcSpl_State8khzTo22khz* state,
                                    int32_t* tmpmem);
 
@@ -830,7 +817,8 @@ typedef struct {
   int32_t S_32_16[8];
 } WebRtcSpl_State48khzTo16khz;
 
-void WebRtcSpl_Resample48khzTo16khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample48khzTo16khz(const int16_t* in,
+                                    int16_t* out,
                                     WebRtcSpl_State48khzTo16khz* state,
                                     int32_t* tmpmem);
 
@@ -842,7 +830,8 @@ typedef struct {
   int32_t S_24_48[8];
 } WebRtcSpl_State16khzTo48khz;
 
-void WebRtcSpl_Resample16khzTo48khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample16khzTo48khz(const int16_t* in,
+                                    int16_t* out,
                                     WebRtcSpl_State16khzTo48khz* state,
                                     int32_t* tmpmem);
 
@@ -855,7 +844,8 @@ typedef struct {
   int32_t S_16_8[8];
 } WebRtcSpl_State48khzTo8khz;
 
-void WebRtcSpl_Resample48khzTo8khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample48khzTo8khz(const int16_t* in,
+                                   int16_t* out,
                                    WebRtcSpl_State48khzTo8khz* state,
                                    int32_t* tmpmem);
 
@@ -868,7 +858,8 @@ typedef struct {
   int32_t S_24_48[8];
 } WebRtcSpl_State8khzTo48khz;
 
-void WebRtcSpl_Resample8khzTo48khz(const int16_t* in, int16_t* out,
+void WebRtcSpl_Resample8khzTo48khz(const int16_t* in,
+                                   int16_t* out,
                                    WebRtcSpl_State8khzTo48khz* state,
                                    int32_t* tmpmem);
 
@@ -881,11 +872,15 @@ void WebRtcSpl_ResetResample8khzTo48khz(WebRtcSpl_State8khzTo48khz* state);
  *
  ******************************************************************/
 
-void WebRtcSpl_DownsampleBy2(const int16_t* in, size_t len,
-                             int16_t* out, int32_t* filtState);
+void WebRtcSpl_DownsampleBy2(const int16_t* in,
+                             size_t len,
+                             int16_t* out,
+                             int32_t* filtState);
 
-void WebRtcSpl_UpsampleBy2(const int16_t* in, size_t len,
-                           int16_t* out, int32_t* filtState);
+void WebRtcSpl_UpsampleBy2(const int16_t* in,
+                           size_t len,
+                           int16_t* out,
+                           int32_t* filtState);
 
 /************************************************************
  * END OF RESAMPLING FUNCTIONS
@@ -1327,23 +1322,6 @@ void WebRtcSpl_SynthesisQMF(const int16_t* low_band,
 // x = y-1
 //   = 1+(x/2)-0.5*((x/2)^2+0.5*((x/2)^3-0.625*((x/2)^4+0.875*((x/2)^5)
 // 0.5 <= x < 1
-//
-// Input:
-//      - value     : Value to calculate sqrt of
-//
-// Return value     : Result of the sqrt calculation
-//
-
-//
-// WebRtcSpl_SqrtFloor(...)
-//
-// Returns the square root of the input value |value|. The precision of this
-// function is rounding down integer precision, i.e., sqrt(8) gives 2 as answer.
-// If |value| is a negative number then 0 is returned.
-//
-// Algorithm:
-//
-// An iterative 4 cylce/bit routine
 //
 // Input:
 //      - value     : Value to calculate sqrt of
